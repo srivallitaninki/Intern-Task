@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #2193b0, #6dd5ed);
+            color: #fff;
+            text-align: center;
+            padding: 20px;
+        }
+        #weather-container {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+        }
+        input {
+            width: 200px;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weather App</h1>
+    <div id="weather-container">
+        <input type="text" id="location-input" placeholder="Enter location">
+        <button onclick="fetchWeatherByLocation()">Get Weather</button>
+        <h2 id="location-name"></h2>
+        <p id="weather-description"></p>
+        <p id="temperature"></p>
+        <p id="humidity"></p>
+        <p id="wind-speed"></p>
+    </div>
+    
+    <script>
+        const apiKey = 'YOUR_API_KEY_HERE';  // Replace with your OpenWeatherMap API key
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    fetchWeather(position.coords.latitude, position.coords.longitude);
+                });
+            }
+        });
+
+        function fetchWeatherByLocation() {
+            const location = document.getElementById('location-input').value;
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`)
+                .then(response => response.json())
+                .then(data => updateWeather(data))
+                .catch(error => console.error('Error fetching weather data:', error));
+        }
+
+        function fetchWeather(lat, lon) {
+            fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`)
+                .then(response => response.json())
+                .then(data => updateWeather(data))
+                .catch(error => console.error('Error fetching weather data:', error));
+        }
+
+        function updateWeather(data) {
+            if (data.cod === 200) {
+                document.getElementById('location-name').innerText = data.name;
+                document.getElementById('weather-description').innerText = `Weather: ${data.weather[0].description}`;
+                document.getElementById('temperature').innerText = `Temperature: ${data.main.temp}°C`;
+                document.getElementById('humidity').innerText = `Humidity: ${data.main.humidity}%`;
+                document.getElementById('wind-speed').innerText = `Wind Speed: ${data.wind.speed} m/s`;
+            } else {
+                alert('Location not found!');
+            }
+        }
+    </script>
+</body>
+</html>
